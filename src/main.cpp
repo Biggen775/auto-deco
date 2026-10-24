@@ -21,7 +21,7 @@ class $modify(AutoDecoEditorUI, EditorUI) {
         ownMenu->setID("auto-deco-menu"_spr);
         ownMenu->setContentSize(btn->getContentSize());
         ownMenu->ignoreAnchorPointForPosition(false);
-        btn->setPosition(btn->getContentSize() / 2);
+        btn->setPosition({btn->getContentWidth() / 2, btn->getContentHeight() / 2});
         ownMenu->addChild(btn);
         auto win = CCDirector::get()->getWinSize();
         CCPoint pos{win.width / 2 - 150.f, win.height - 22.f};
