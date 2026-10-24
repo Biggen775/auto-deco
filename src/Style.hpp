@@ -14,6 +14,47 @@ struct RGB {
     cocos2d::ccColor3B cc() const { return {r, g, b}; }
 };
 
+// A colour channel setting: colour plus optional blending / opacity.
+struct Channel {
+    RGB color;
+    bool blending = false;
+    float opacity = 1.f;
+};
+
+// Objects placed along exposed block edges: outlines, glow strips, shadows.
+// Reference orientation mirrors the block roles: `edge` sits on the TOP edge of the cell,
+// `corner` on the TOP-LEFT outer corner, `innerCorner` in a TOP-LEFT concave corner.
+// Offsets are in the reference orientation and are rotated with the piece.
+struct EdgeLayer {
+    std::string name;
+    int edge = 0, corner = 0, innerCorner = 0;
+    int rotationOffset = 0;
+    float offsetX = 0.f, offsetY = 0.f;
+    float scale = 1.f;
+    int zLayer = 3;   // B1
+    int zOrder = 0;
+    int color = 2;
+    int detailColor = 0; // 0 = same as color
+};
+
+// An object stacked on every block cell (pattern fills, inner shading).
+struct Overlay {
+    int id = 0;
+    bool innerOnly = false;
+    float scale = 1.f;
+    int zLayer = 0, zOrder = 1;
+    int color = 1, detailColor = 0;
+};
+
+// An object placed under/over every hazard (glow discs, halos).
+struct HazardOverlay {
+    int id = 0;
+    float scale = 1.f;
+    int zLayer = -1, zOrder = 0;
+    int color = 4;
+    bool matchRotation = false;
+};
+
 // A role -> object piece mapping. rotationOffset is added to the classifier's rotation,
 // for block families whose reference piece faces a different way than the 1.0 set.
 struct Piece {
@@ -39,7 +80,11 @@ struct Style {
     bool builtin = false;
 
     // Colour channels. Keys: bg, ground, ground2, line, object, and numbered channels "1".."n".
-    std::map<std::string, RGB> palette;
+    std::map<std::string, Channel> palette;
+
+    std::vector<EdgeLayer> edgeLayers;
+    std::vector<Overlay> overlays;
+    std::vector<HazardOverlay> hazardOverlays;
 
     std::array<std::optional<Piece>, (size_t)Role::COUNT> blocks;
     int blockBaseChannel = 1;
@@ -78,6 +123,11 @@ private:
 };
 
 std::optional<RGB> parseColor(matjson::Value const& v);
+std::optional<Channel> parseChannel(matjson::Value const& v);
 std::string colorToHex(RGB c);
+
+// Writes "id<TAB>frame<TAB>w<TAB>h" for every object ID the game knows, so styles can be
+// authored outside the game. Returns the number of rows written.
+geode::Result<int> dumpObjectTable(std::filesystem::path const& path);
 
 } // namespace autodeco

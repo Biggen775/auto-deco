@@ -29,6 +29,23 @@ std::optional<RGB> parseColor(matjson::Value const& v) {
     return std::nullopt;
 }
 
+std::optional<Channel> parseChannel(matjson::Value const& v) {
+    Channel ch;
+    if (v.isObject()) {
+        if (!v.contains("color")) return std::nullopt;
+        auto c = parseColor(v["color"]);
+        if (!c) return std::nullopt;
+        ch.color = *c;
+        if (v.contains("blending")) ch.blending = v["blending"].asBool().unwrapOr(false);
+        if (v.contains("opacity")) ch.opacity = (float)v["opacity"].asDouble().unwrapOr(1.0);
+        return ch;
+    }
+    auto c = parseColor(v);
+    if (!c) return std::nullopt;
+    ch.color = *c;
+    return ch;
+}
+
 std::string colorToHex(RGB c) {
     return fmt::format("#{:02x}{:02x}{:02x}", c.r, c.g, c.b);
 }
@@ -82,7 +99,59 @@ Result<Style> Style::fromJson(matjson::Value const& v, std::string const& id) {
         for (auto& val : v["palette"]) {
             auto key = val.getKey();
             if (!key) continue;
-            if (auto c = parseColor(val)) s.palette[*key] = *c;
+            if (auto c = parseChannel(val)) s.palette[*key] = *c;
+        }
+    }
+
+    if (v.contains("edgeLayers") && v["edgeLayers"].isArray()) {
+        for (auto& ev : v["edgeLayers"].asArray().unwrap()) {
+            if (!ev.isObject()) continue;
+            EdgeLayer e;
+            e.name = getStr(ev, "name", "");
+            e.edge = getInt(ev, "edge", 0);
+            e.corner = getInt(ev, "corner", 0);
+            e.innerCorner = getInt(ev, "innerCorner", 0);
+            if (!e.edge && !e.corner && !e.innerCorner) continue;
+            e.rotationOffset = getInt(ev, "rotation", 0);
+            e.offsetX = getFloat(ev, "offsetX", 0.f);
+            e.offsetY = getFloat(ev, "offsetY", 0.f);
+            e.scale = getFloat(ev, "scale", 1.f);
+            e.zLayer = getInt(ev, "zLayer", 3);
+            e.zOrder = getInt(ev, "zOrder", 0);
+            e.color = getInt(ev, "color", 2);
+            e.detailColor = getInt(ev, "detailColor", 0);
+            s.edgeLayers.push_back(e);
+        }
+    }
+
+    if (v.contains("overlays") && v["overlays"].isArray()) {
+        for (auto& ov : v["overlays"].asArray().unwrap()) {
+            if (!ov.isObject()) continue;
+            Overlay o;
+            o.id = getInt(ov, "id", 0);
+            if (o.id <= 0) continue;
+            o.innerOnly = getBool(ov, "innerOnly", false);
+            o.scale = getFloat(ov, "scale", 1.f);
+            o.zLayer = getInt(ov, "zLayer", 0);
+            o.zOrder = getInt(ov, "zOrder", 1);
+            o.color = getInt(ov, "color", 1);
+            o.detailColor = getInt(ov, "detailColor", 0);
+            s.overlays.push_back(o);
+        }
+    }
+
+    if (v.contains("hazardOverlays") && v["hazardOverlays"].isArray()) {
+        for (auto& hv : v["hazardOverlays"].asArray().unwrap()) {
+            if (!hv.isObject()) continue;
+            HazardOverlay h;
+            h.id = getInt(hv, "id", 0);
+            if (h.id <= 0) continue;
+            h.scale = getFloat(hv, "scale", 1.f);
+            h.zLayer = getInt(hv, "zLayer", -1);
+            h.zOrder = getInt(hv, "zOrder", 0);
+            h.color = getInt(hv, "color", 4);
+            h.matchRotation = getBool(hv, "matchRotation", false);
+            s.hazardOverlays.push_back(h);
         }
     }
 
@@ -154,8 +223,49 @@ matjson::Value Style::toJson() const {
     v.set("description", description);
 
     auto pal = matjson::Value::object();
-    for (auto& [k, c] : palette) pal.set(k, colorToHex(c));
+    for (auto& [k, ch] : palette) {
+        if (!ch.blending && ch.opacity >= 0.999f) { pal.set(k, colorToHex(ch.color)); continue; }
+        auto o = matjson::Value::object();
+        o.set("color", colorToHex(ch.color));
+        o.set("blending", ch.blending);
+        o.set("opacity", (double)ch.opacity);
+        pal.set(k, o);
+    }
     v.set("palette", pal);
+
+    auto el = matjson::Value::array();
+    for (auto& e : edgeLayers) {
+        auto o = matjson::Value::object();
+        o.set("name", e.name);
+        o.set("edge", e.edge); o.set("corner", e.corner); o.set("innerCorner", e.innerCorner);
+        o.set("rotation", e.rotationOffset);
+        o.set("offsetX", (double)e.offsetX); o.set("offsetY", (double)e.offsetY);
+        o.set("scale", (double)e.scale);
+        o.set("zLayer", e.zLayer); o.set("zOrder", e.zOrder);
+        o.set("color", e.color); o.set("detailColor", e.detailColor);
+        el.push(o);
+    }
+    v.set("edgeLayers", el);
+
+    auto ol = matjson::Value::array();
+    for (auto& ov : overlays) {
+        auto o = matjson::Value::object();
+        o.set("id", ov.id); o.set("innerOnly", ov.innerOnly); o.set("scale", (double)ov.scale);
+        o.set("zLayer", ov.zLayer); o.set("zOrder", ov.zOrder);
+        o.set("color", ov.color); o.set("detailColor", ov.detailColor);
+        ol.push(o);
+    }
+    v.set("overlays", ol);
+
+    auto hl = matjson::Value::array();
+    for (auto& h : hazardOverlays) {
+        auto o = matjson::Value::object();
+        o.set("id", h.id); o.set("scale", (double)h.scale);
+        o.set("zLayer", h.zLayer); o.set("zOrder", h.zOrder);
+        o.set("color", h.color); o.set("matchRotation", h.matchRotation);
+        hl.push(o);
+    }
+    v.set("hazardOverlays", hl);
 
     auto b = matjson::Value::object();
     for (size_t i = 0; i < (size_t)Role::COUNT; i++) {
@@ -193,6 +303,29 @@ matjson::Value Style::toJson() const {
     }
     v.set("scatter", sc);
     return v;
+}
+
+// ---------- object table dump ----------
+
+Result<int> dumpObjectTable(std::filesystem::path const& path) {
+    auto toolbox = ObjectToolbox::sharedState();
+    if (!toolbox) return Err("no object toolbox");
+    auto cache = CCSpriteFrameCache::sharedSpriteFrameCache();
+    std::string out = "id\tframe\tw\th\n";
+    int rows = 0;
+    for (int id = 1; id <= 4500; id++) {
+        const char* frame = toolbox->intKeyToFrame(id);
+        if (!frame || !*frame) continue;
+        float w = 0, h = 0;
+        if (auto sf = cache->spriteFrameByName(frame)) {
+            auto sz = sf->getOriginalSize();
+            w = sz.width; h = sz.height;
+        }
+        out += fmt::format("{}\t{}\t{:.0f}\t{:.0f}\n", id, frame, w, h);
+        rows++;
+    }
+    GEODE_UNWRAP(file::writeString(path, out));
+    return Ok(rows);
 }
 
 // ---------- StyleLibrary ----------

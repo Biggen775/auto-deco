@@ -52,6 +52,14 @@ In the editor, press the **Deco** button (top-left, next to undo/redo).
 - Missing roles fall back to simpler ones (no `cap` → `corner` → `edge` → `inner`).
 - `palette` keys: `bg`, `ground`, `ground2`, `line`, `3dl`, `object`, or a channel number.
 - `scatter.zLayer`: B5=-5, B4=-3, B3=-1, B2=1, B1=3, T1=5, T2=7, T3=9.
+- A palette entry can be an object: `{ "color": "#4fa8ff", "blending": true, "opacity": 0.6 }` (for glow channels).
+- `edgeLayers`: objects placed along every exposed block edge, e.g. outlines and glow:
+  `{ "name": "outline", "edge": 1234, "corner": 1235, "innerCorner": 1236, "rotation": 0, "offsetX": 0, "offsetY": 0, "scale": 1, "zLayer": 3, "zOrder": 1, "color": 2 }`.
+  `edge` is drawn on the top edge, `corner` at the top-left outer corner, `innerCorner` in a top-left concave corner; the mod rotates them.
+- `overlays`: objects stacked on every block cell (`innerOnly: true` for cells with no exposed side):
+  `{ "id": 1234, "innerOnly": true, "zLayer": 0, "zOrder": 1, "color": 5 }`.
+- `hazardOverlays`: objects placed on every hazard (glow discs): `{ "id": 1234, "scale": 1.6, "zLayer": -1, "color": 4 }`.
+- The **IDs** button writes `object-table.tsv` (id, sprite frame, size) to the config folder, for authoring styles by hand.
 
 ## Building
 

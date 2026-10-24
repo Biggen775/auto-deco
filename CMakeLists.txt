@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(AutoDeco VERSION 0.1.0)
+project(AutoDeco VERSION 0.2.0)
 
 file(GLOB SOURCES src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})

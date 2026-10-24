@@ -7,6 +7,7 @@
 #include <Geode/binding/GJSpriteColor.hpp>
 #include <Geode/binding/EditorUI.hpp>
 #include <cctype>
+#include <functional>
 #include <cmath>
 #include <random>
 #include <set>
@@ -55,9 +56,9 @@ static int colorIdOf(GJSpriteColor* c, int def) {
 }
 
 // Classifier input for one cell. GD's y axis points up, so "top" is y + 1.
-static std::vector<Placement> classifyCell(CellSet const& occ, Cell c) {
+static void cellMasks(CellSet const& occ, Cell c, unsigned& open, unsigned& diag) {
     auto solid = [&](int dx, int dy) { return occ.count({c.x + dx, c.y + dy}) > 0; };
-    unsigned open = 0, diag = 0;
+    open = 0; diag = 0;
     if (!solid(0, 1)) open |= T;
     if (!solid(1, 0)) open |= R;
     if (!solid(0, -1)) open |= B;
@@ -66,7 +67,60 @@ static std::vector<Placement> classifyCell(CellSet const& occ, Cell c) {
     if (!solid(1, 1)) diag |= TR;
     if (!solid(1, -1)) diag |= BR;
     if (!solid(-1, -1)) diag |= BL;
+}
+static std::vector<Placement> classifyCell(CellSet const& occ, Cell c) {
+    unsigned open, diag;
+    cellMasks(occ, c, open, diag);
     return classify(open, diag);
+}
+
+// Rotate an offset given in the reference orientation by `deg` clockwise (y up).
+static CCPoint rotateOffset(float dx, float dy, int deg) {
+    switch (normalizeRotation(deg)) {
+        case 90:  return {dy, -dx};
+        case 180: return {-dx, -dy};
+        case 270: return {-dy, dx};
+        default:  return {dx, dy};
+    }
+}
+
+// Builds a fresh object string for a decoration piece.
+static ObjString makePiece(int id, CCPoint pos, int rot, float scale, int zLayer, int zOrder, int color, int detail, std::string const& group) {
+    ObjString o;
+    o.set("1", std::to_string(id));
+    o.set("2", fmt::format("{:.2f}", pos.x));
+    o.set("3", fmt::format("{:.2f}", pos.y));
+    if (rot) o.set("6", std::to_string(normalizeRotation(rot)));
+    if (std::fabs(scale - 1.f) > 0.001f) o.set("32", fmt::format("{:.3f}", scale));
+    o.set("24", std::to_string(zLayer));
+    o.set("25", std::to_string(zOrder));
+    if (color > 0) o.set("21", std::to_string(color));
+    if (detail > 0) o.set("22", std::to_string(detail));
+    o.set("57", group);
+    return o;
+}
+
+// Places an EdgeLayer's pieces around one cell given its open-side / open-diagonal masks.
+static void placeEdgeLayer(EdgeLayer const& e, CCPoint c, unsigned open, unsigned diag,
+                           std::string const& group, std::function<void(ObjString const&)> const& emit) {
+    auto put = [&](int id, int rot) {
+        if (id <= 0) return;
+        rot += e.rotationOffset;
+        auto off = rotateOffset(e.offsetX, e.offsetY, rot);
+        emit(makePiece(id, {c.x + off.x, c.y + off.y}, rot, e.scale, e.zLayer, e.zOrder, e.color, e.detailColor, group));
+    };
+    if (open & T) put(e.edge, 0);
+    if (open & R) put(e.edge, 90);
+    if (open & B) put(e.edge, 180);
+    if (open & L) put(e.edge, 270);
+    if ((open & T) && (open & L)) put(e.corner, 0);
+    if ((open & T) && (open & R)) put(e.corner, 90);
+    if ((open & R) && (open & B)) put(e.corner, 180);
+    if ((open & B) && (open & L)) put(e.corner, 270);
+    if ((diag & TL) && !(open & T) && !(open & L)) put(e.innerCorner, 0);
+    if ((diag & TR) && !(open & T) && !(open & R)) put(e.innerCorner, 90);
+    if ((diag & BR) && !(open & B) && !(open & R)) put(e.innerCorner, 180);
+    if ((diag & BL) && !(open & B) && !(open & L)) put(e.innerCorner, 270);
 }
 
 // ---------------------------------------------------------------- Decorator
@@ -111,17 +165,21 @@ void Decorator::applyPalette(Style const& style) {
         {"bg", 1000}, {"ground", 1001}, {"line", 1002}, {"3dl", 1003},
         {"object", 1004}, {"ground2", 1009},
     };
-    for (auto& [key, rgb] : style.palette) {
+    for (auto& [key, ch] : style.palette) {
         int id = 0;
         if (auto it = named.find(key); it != named.end()) id = it->second;
         else id = std::atoi(key.c_str());
         if (id <= 0) continue;
         auto action = em->getColorAction(id);
         if (!action) continue;
-        action->m_fromColor = rgb.cc();
-        action->m_toColor = rgb.cc();
-        action->m_color = rgb.cc();
+        action->m_fromColor = ch.color.cc();
+        action->m_toColor = ch.color.cc();
+        action->m_color = ch.color.cc();
         action->m_colorID = id;
+        action->m_blending = ch.blending;
+        action->m_fromOpacity = ch.opacity;
+        action->m_toOpacity = ch.opacity;
+        action->m_currentOpacity = ch.opacity;
     }
     m_layer->updateLevelColors();
 }
@@ -177,7 +235,19 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
     for (auto obj : blocks) {
         auto orig = std::string(obj->getSaveString(m_layer));
         auto cell = cellOf(obj->getPosition());
-        auto placements = classifyCell(occ, cell);
+        unsigned open, diag;
+        cellMasks(occ, cell, open, diag);
+        auto placements = classify(open, diag);
+        auto center = centerOf(cell);
+
+        // Decoration layers around / on top of the block.
+        for (auto& e : style.edgeLayers) placeEdgeLayer(e, center, open, diag, groupStr, emit);
+        for (auto& ov : style.overlays) {
+            if (ov.innerOnly && open) continue;
+            emit(makePiece(ov.id, center, 0, ov.scale, ov.zLayer, ov.zOrder,
+                           opts.recolor ? ov.color : 0, opts.recolor ? ov.detailColor : 0, groupStr));
+        }
+
         bool first = true;
         for (auto& pl : placements) {
             auto piece = style.pieceFor(pl.role);
@@ -203,6 +273,11 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
     }
 
     for (auto obj : hazards) {
+        for (auto& h : style.hazardOverlays) {
+            int rot = h.matchRotation ? (int)std::lround(obj->getRotation()) : 0;
+            float sc = h.scale * std::max(obj->m_scaleX, 0.1f);
+            emit(makePiece(h.id, obj->getPosition(), rot, sc, h.zLayer, h.zOrder, h.color, 0, groupStr));
+        }
         auto remap = style.hazards.find(obj->m_objectID);
         bool doRemap = remap != style.hazards.end();
         bool doRecolor = opts.recolor && style.recolorHazards;
@@ -404,7 +479,12 @@ Result<Style> Decorator::learnFromSelection(std::string const& name) {
     if (em) {
         auto grab = [&](std::string const& key, int id) {
             auto a = em->getColorAction(id);
-            if (a) s.palette[key] = RGB{a->m_color.r, a->m_color.g, a->m_color.b};
+            if (!a) return;
+            Channel ch;
+            ch.color = RGB{a->m_color.r, a->m_color.g, a->m_color.b};
+            ch.blending = a->m_blending;
+            ch.opacity = a->m_currentOpacity > 0.f ? a->m_currentOpacity : 1.f;
+            s.palette[key] = ch;
         };
         grab("bg", 1000); grab("ground", 1001); grab("line", 1002); grab("object", 1004); grab("ground2", 1009);
         std::set<int> chans = {s.blockBaseChannel, s.blockDetailChannel, s.hazardBaseChannel, s.hazardDetailChannel};

@@ -32,6 +32,7 @@ protected:
     void onSave(cocos2d::CCObject*);
     void onReload(cocos2d::CCObject*);
     void onOpenFolder(cocos2d::CCObject*);
+    void onDumpIds(cocos2d::CCObject*);
     void onToggle(cocos2d::CCObject*) {}
 };
 

@@ -105,6 +105,11 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     folderBtn->setPosition({W - 46.f, H - 20.f});
     btnMenu->addChild(folderBtn);
 
+    auto dumpSpr = ButtonSprite::create("IDs", "bigFont.fnt", "GJ_button_04.png", .4f);
+    auto dumpBtn = CCMenuItemSpriteExtra::create(dumpSpr, this, menu_selector(StylePopup::onDumpIds));
+    dumpBtn->setPosition({W - 80.f, H - 20.f});
+    btnMenu->addChild(dumpBtn);
+
     m_status = CCLabelBMFont::create("", "chatFont.fnt");
     m_status->setScale(.5f);
     m_status->setPosition({center.width, 10.f});
@@ -217,6 +222,13 @@ void StylePopup::onReload(CCObject*) {
 
 void StylePopup::onOpenFolder(CCObject*) {
     file::openFolder(StyleLibrary::get().userDir());
+}
+
+void StylePopup::onDumpIds(CCObject*) {
+    auto path = Mod::get()->getConfigDir() / "object-table.tsv";
+    auto r = dumpObjectTable(path);
+    if (!r) { setStatus(r.unwrapErr(), true); return; }
+    setStatus(fmt::format("Wrote {} object IDs to object-table.tsv (config folder)", r.unwrap()));
 }
 
 // ---------------------------------------------------------------- NamePopup
