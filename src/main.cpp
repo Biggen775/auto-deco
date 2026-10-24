@@ -23,12 +23,12 @@ class $modify(AutoDecoEditorUI, EditorUI) {
             menu->setContentSize({size.width + spr->getContentWidth() + 10.f, size.height});
             menu->updateLayout();
         } else {
-            auto menu = CCMenu::create();
-            menu->setID("auto-deco-menu"_spr);
+            auto ownMenu = CCMenu::create();
+            ownMenu->setID("auto-deco-menu"_spr);
             auto win = CCDirector::get()->getWinSize();
-            menu->setPosition({win.width / 2, win.height - 20.f});
-            menu->addChild(btn);
-            this->addChild(menu, 10);
+            ownMenu->setPosition({win.width / 2, win.height - 20.f});
+            ownMenu->addChild(btn);
+            this->addChild(ownMenu, 10);
         }
         return true;
     }
