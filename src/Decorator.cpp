@@ -303,7 +303,10 @@ void Decorator::applyPalette(Style const& style) {
         action->m_toOpacity = ch.opacity;
         action->m_currentOpacity = ch.opacity;
     }
+    // Objects live in separate batch layers depending on whether their channel blends, so the
+    // flag only takes effect once the editor re-sorts them.
     m_layer->updateLevelColors();
+    m_layer->updateBlendValues();
 }
 
 Result<ApplyReport> Decorator::apply(Style const& styleIn, ApplyOptions const& opts) {
@@ -548,7 +551,23 @@ Result<ApplyReport> Decorator::apply(Style const& styleIn, ApplyOptions const& o
         }
     }
 
-    // 4. Commit: remove originals, add the new objects, recolor.
+    // 4. Backup file FIRST, so a crash mid-commit still leaves an undoable record. It also keeps
+    //    every group this level's deco ever used, so leftovers from an interrupted run get cleaned.
+    auto json = matjson::Value::object();
+    json.set("group", rep.group);
+    auto groups = matjson::Value::array();
+    for (int g : m_knownGroups) groups.push(g);
+    groups.push(rep.group);
+    json.set("groups", groups);
+    json.set("style", style.id);
+    auto arr = matjson::Value::array();
+    for (auto& s : backup) arr.push(s);
+    json.set("objects", arr);
+    auto w = file::writeString(backupPath(), json.dump(0));
+    if (!w) log::warn("Auto Deco: could not write backup: {}", w.unwrapErr());
+
+    // 5. Commit: palette first (so new objects land in the right blending layer), then swap objects.
+    if (opts.recolor) applyPalette(style);
     for (auto obj : blocks) m_layer->removeObject(obj, true);
     for (auto obj : hazards) {
         bool touched = style.hazards.count(obj->m_objectID) || (opts.recolor && style.recolorHazards);
@@ -556,16 +575,6 @@ Result<ApplyReport> Decorator::apply(Style const& styleIn, ApplyOptions const& o
     }
     if (!created.empty()) m_layer->createObjectsFromString(created, true, true);
     if (opts.recolor) applyPalette(style);
-
-    // 5. Backup file so Undo can restore the layout later (even after a restart).
-    auto json = matjson::Value::object();
-    json.set("group", rep.group);
-    json.set("style", style.id);
-    auto arr = matjson::Value::array();
-    for (auto& s : backup) arr.push(s);
-    json.set("objects", arr);
-    auto w = file::writeString(backupPath(), json.dump(0));
-    if (!w) log::warn("Auto Deco: could not write backup: {}", w.unwrapErr());
 
     log::info("Auto Deco: applied '{}' -> {} blocks, {} hazards, {} scatter, {} triggers (group {})",
               style.name, rep.blocksReplaced, rep.hazardsTouched, rep.scatterAdded, rep.triggersAdded, rep.group);
@@ -579,21 +588,32 @@ Result<bool> Decorator::undo() {
     auto v = json.unwrap();
     int group = (int)v["group"].asInt().unwrapOr(0);
     if (group <= 0) return Err("backup has no group");
+    std::set<int> groups{group};
+    if (v.contains("groups") && v["groups"].isArray())
+        for (auto& g : v["groups"].asArray().unwrap()) if (auto i = g.asInt()) if (i.unwrap() > 0) groups.insert((int)i.unwrap());
+    m_knownGroups = groups;
 
     if (auto ui = EditorUI::get()) ui->deselectAll();
 
-    // Remove every object carrying our group.
+    // Remove every object carrying any group this level's deco has used.
     std::vector<GameObject*> doomed;
+    std::unordered_set<GameObject*> seen;
     for (auto obj : CCArrayExt<GameObject*>(m_layer->m_objects)) {
-        if (!obj || !obj->m_groups) continue;
+        if (!obj || !obj->m_groups || obj->m_objectID <= 0) continue;
         for (int i = 0; i < obj->m_groupCount && i < 10; i++) {
-            if ((*obj->m_groups)[i] == group) { doomed.push_back(obj); break; }
+            if (groups.count((*obj->m_groups)[i])) {
+                if (seen.insert(obj).second) doomed.push_back(obj);
+                break;
+            }
         }
     }
     for (auto obj : doomed) m_layer->removeObject(obj, true);
 
     std::string restore;
-    if (v.contains("objects") && v["objects"].isArray()) {
+    // Nothing of ours was in the level (e.g. the game crashed before the level was saved): the
+    // originals are still there, so restoring them would only create duplicates.
+    if (doomed.empty()) log::warn("Auto Deco: backup found but no deco objects in the level; not restoring originals");
+    else if (v.contains("objects") && v["objects"].isArray()) {
         for (auto& s : v["objects"].asArray().unwrap()) {
             restore += s.asString().unwrapOr("");
             restore += ';';

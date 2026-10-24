@@ -2,6 +2,7 @@
 #include "Style.hpp"
 #include "ObjString.hpp"
 #include <Geode/Geode.hpp>
+#include <set>
 
 namespace autodeco {
 
@@ -55,6 +56,7 @@ public:
 
 private:
     LevelEditorLayer* m_layer;
+    std::set<int> m_knownGroups; // groups seen in the backup during undo(), carried into the next apply()
 
     std::filesystem::path backupPath() const;
     bool isGridBlock(GameObject* obj) const;

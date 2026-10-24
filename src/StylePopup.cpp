@@ -8,7 +8,7 @@ using namespace geode::prelude;
 
 namespace autodeco {
 
-static constexpr float W = 400.f, H = 270.f;
+static constexpr float W = 400.f, H = 300.f;
 static constexpr float LIST_W = 170.f, LIST_H = 185.f;
 
 StylePopup* StylePopup::create(LevelEditorLayer* layer) {
@@ -77,6 +77,7 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     m_customInfo->setAnchorPoint({0, 1});
     m_customInfo->setPosition({rx - 12.f, ry - 30.f});
     m_customInfo->setWidth(W - rx - 10.f);
+    m_customInfo->setScale(.42f);
     m_customInfo->setColor({170, 220, 255});
     m_mainLayer->addChild(m_customInfo);
 
@@ -97,7 +98,7 @@ bool StylePopup::init(LevelEditorLayer* layer) {
 
     auto custSpr = ButtonSprite::create("Customize", "bigFont.fnt", "GJ_button_04.png", .45f);
     auto custBtn = CCMenuItemSpriteExtra::create(custSpr, this, menu_selector(StylePopup::onCustomize));
-    custBtn->setPosition({W - 142.f, H - 20.f});
+    custBtn->setPosition({W - 68.f, 62.f});
     btnMenu->addChild(custBtn);
 
     auto saveSpr = ButtonSprite::create("Save selection as style", "bigFont.fnt", "GJ_button_04.png", .45f);
@@ -130,7 +131,8 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     m_mainLayer->addChild(m_status);
 
     auto& styles = StyleLibrary::get().styles();
-    if (!styles.empty()) m_selectedId = styles.front().id;
+    m_selectedId = Mod::get()->getSavedValue<std::string>("last-style", "");
+    if (!StyleLibrary::get().find(m_selectedId) && !styles.empty()) m_selectedId = styles.front().id;
     rebuildList();
     refreshCustomInfo();
     Decorator deco(m_layer);
@@ -182,6 +184,7 @@ void StylePopup::onPick(CCObject* sender) {
     auto node = static_cast<CCNode*>(sender);
     if (auto id = static_cast<CCString*>(node->getUserObject("id"_spr))) {
         m_selectedId = id->getCString();
+        Mod::get()->setSavedValue<std::string>("last-style", m_selectedId);
         rebuildList();
     }
 }

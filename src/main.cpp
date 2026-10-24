@@ -15,21 +15,22 @@ class $modify(AutoDecoEditorUI, EditorUI) {
         auto btn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(AutoDecoEditorUI::onAutoDeco));
         btn->setID("auto-deco-button"_spr);
 
-        // Prefer the Node IDs undo menu (undo / redo / trash, top-left); fall back to a tiny menu
-        // of our own next to it.
+        // Our own little menu to the right of the undo / redo / trash menu. We don't touch that
+        // menu's size: widening it pushes GD's own undo button off the left edge of the screen.
+        auto ownMenu = CCMenu::create();
+        ownMenu->setID("auto-deco-menu"_spr);
+        ownMenu->setContentSize(btn->getContentSize());
+        ownMenu->ignoreAnchorPointForPosition(false);
+        btn->setPosition(btn->getContentSize() / 2);
+        ownMenu->addChild(btn);
+        auto win = CCDirector::get()->getWinSize();
+        CCPoint pos{win.width / 2 - 150.f, win.height - 22.f};
         if (auto menu = typeinfo_cast<CCMenu*>(this->getChildByID("undo-menu"))) {
-            menu->addChild(btn);
-            auto size = menu->getContentSize();
-            menu->setContentSize({size.width + spr->getContentWidth() + 10.f, size.height});
-            menu->updateLayout();
-        } else {
-            auto ownMenu = CCMenu::create();
-            ownMenu->setID("auto-deco-menu"_spr);
-            auto win = CCDirector::get()->getWinSize();
-            ownMenu->setPosition({win.width / 2, win.height - 20.f});
-            ownMenu->addChild(btn);
-            this->addChild(ownMenu, 10);
+            auto box = menu->boundingBox();
+            pos = {box.getMaxX() + 12.f + btn->getContentWidth() / 2, box.getMidY()};
         }
+        ownMenu->setPosition(pos);
+        this->addChild(ownMenu, 10);
         return true;
     }
 
