@@ -58,7 +58,22 @@ In the editor, press the **Deco** button (top-left, next to undo/redo).
   `edge` is drawn on the top edge, `corner` at the top-left outer corner, `innerCorner` in a top-left concave corner; the mod rotates them.
 - `overlays`: objects stacked on every block cell (`innerOnly: true` for cells with no exposed side):
   `{ "id": 1234, "innerOnly": true, "zLayer": 0, "zOrder": 1, "color": 5 }`.
-- `hazardOverlays`: objects placed on every hazard (glow discs): `{ "id": 1234, "scale": 1.6, "zLayer": -1, "color": 4 }`.
+- `hazardOverlays`: objects placed on every hazard: `{ "id": 1012, "scale": 1.5, "offsetX": 15, "offsetY": 15, "rotation": 90, "zLayer": 1, "color": 4 }`.
+  Four `1012` quarter-gradients at rotations 0/90/180/270 with offset (15,15) make a radial glow disc.
+- Edge layers accept `scaleX` / `scaleY` for non-uniform scale (e.g. `468` with `scaleY: 3` is a thick outline).
+
+### Bundled styles
+
+| Style | Look |
+|---|---|
+| White Glow | black silhouettes, thick white outline, white glow, nested-square interiors |
+| Monochrome Core | dark-grey fill, thin white outline, grid interiors, light beams, no glow |
+| Hellfire | black silhouettes, orange outline + heavy glow, embers, lava ground |
+| Classic Dark / Classic Grid / Ocean | 1.0 grid block families |
+
+Useful object IDs (from the game's own sprite table): `211` solid square, `468` 30x2 line, `69` outline square,
+`1011` 30x30 gradient (bright at bottom), `1012` corner gradient (bright at bottom-left), `503`/`504` 20px versions,
+`1764` small dot, `917` small square, `1521`/`1019` light beams, `54` star, `1004` thin line.
 - The **IDs** button writes `object-table.tsv` (id, sprite frame, size) to the config folder, for authoring styles by hand.
 
 ## Building

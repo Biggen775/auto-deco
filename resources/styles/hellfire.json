@@ -1,0 +1,156 @@
+{
+    "name": "Hellfire",
+    "description": "Black silhouettes with orange outlines, heavy orange glow, embers and a lava ground. Avernus-style hell.",
+    "palette": {
+        "bg": "#140300",
+        "ground": "#ff5a00",
+        "ground2": "#7a1a00",
+        "line": "#ffb070",
+        "1": "#000000",
+        "2": "#ff7a1a",
+        "3": {
+            "color": "#ff9a30",
+            "blending": true,
+            "opacity": 0.85
+        },
+        "4": {
+            "color": "#ff5500",
+            "blending": true,
+            "opacity": 0.55
+        },
+        "5": "#3a0c00"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 13,
+            "scaleY": 2,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 69,
+            "innerOnly": true,
+            "scale": 0.6,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 1.5,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.5,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.5,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.5,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 1764,
+            "density": 0.035,
+            "scale": [
+                0.25,
+                0.7
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1765,
+            "density": 0.006,
+            "scale": [
+                0.6,
+                1.2
+            ],
+            "randomRotation": true,
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1764,
+            "density": 0.006,
+            "scale": [
+                0.8,
+                1.4
+            ],
+            "zLayer": -5,
+            "color": 4
+        }
+    ]
+}

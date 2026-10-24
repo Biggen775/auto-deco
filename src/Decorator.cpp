@@ -85,13 +85,22 @@ static CCPoint rotateOffset(float dx, float dy, int deg) {
 }
 
 // Builds a fresh object string for a decoration piece.
-static ObjString makePiece(int id, CCPoint pos, int rot, float scale, int zLayer, int zOrder, int color, int detail, std::string const& group) {
+static ObjString makePiece(int id, CCPoint pos, int rot, float scale, int zLayer, int zOrder, int color, int detail, std::string const& group,
+                           float scaleX = 0.f, float scaleY = 0.f) {
     ObjString o;
     o.set("1", std::to_string(id));
     o.set("2", fmt::format("{:.2f}", pos.x));
     o.set("3", fmt::format("{:.2f}", pos.y));
     if (rot) o.set("6", std::to_string(normalizeRotation(rot)));
-    if (std::fabs(scale - 1.f) > 0.001f) o.set("32", fmt::format("{:.3f}", scale));
+    float sx = scaleX > 0.f ? scaleX : scale;
+    float sy = scaleY > 0.f ? scaleY : scale;
+    if (std::fabs(sx - sy) > 0.001f) {
+        o.set("32", fmt::format("{:.3f}", std::max(sx, sy)));
+        o.set("128", fmt::format("{:.3f}", sx));
+        o.set("129", fmt::format("{:.3f}", sy));
+    } else if (std::fabs(sx - 1.f) > 0.001f) {
+        o.set("32", fmt::format("{:.3f}", sx));
+    }
     o.set("24", std::to_string(zLayer));
     o.set("25", std::to_string(zOrder));
     if (color > 0) o.set("21", std::to_string(color));
@@ -107,7 +116,7 @@ static void placeEdgeLayer(EdgeLayer const& e, CCPoint c, unsigned open, unsigne
         if (id <= 0) return;
         rot += e.rotationOffset;
         auto off = rotateOffset(e.offsetX, e.offsetY, rot);
-        emit(makePiece(id, {c.x + off.x, c.y + off.y}, rot, e.scale, e.zLayer, e.zOrder, e.color, e.detailColor, group));
+        emit(makePiece(id, {c.x + off.x, c.y + off.y}, rot, e.scale, e.zLayer, e.zOrder, e.color, e.detailColor, group, e.scaleX, e.scaleY));
     };
     if (open & T) put(e.edge, 0);
     if (open & R) put(e.edge, 90);
@@ -274,9 +283,11 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
 
     for (auto obj : hazards) {
         for (auto& h : style.hazardOverlays) {
-            int rot = h.matchRotation ? (int)std::lround(obj->getRotation()) : 0;
+            int rot = h.rotation + (h.matchRotation ? (int)std::lround(obj->getRotation()) : 0);
             float sc = h.scale * std::max(obj->m_scaleX, 0.1f);
-            emit(makePiece(h.id, obj->getPosition(), rot, sc, h.zLayer, h.zOrder, h.color, 0, groupStr));
+            auto off = rotateOffset(h.offsetX * sc, h.offsetY * sc, rot);
+            auto p = obj->getPosition();
+            emit(makePiece(h.id, {p.x + off.x, p.y + off.y}, rot, sc, h.zLayer, h.zOrder, h.color, 0, groupStr));
         }
         auto remap = style.hazards.find(obj->m_objectID);
         bool doRemap = remap != style.hazards.end();

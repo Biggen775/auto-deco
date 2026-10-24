@@ -1,0 +1,154 @@
+{
+    "name": "White Glow",
+    "description": "Black silhouettes, thick white outlines and soft white glow. Thinking Space / modern glow look.",
+    "palette": {
+        "bg": "#1c1c1c",
+        "ground": "#101010",
+        "ground2": "#1c1c1c",
+        "line": "#ffffff",
+        "1": "#000000",
+        "2": "#ffffff",
+        "3": "#8c8c8c",
+        "4": {
+            "color": "#ffffff",
+            "blending": true,
+            "opacity": 0.4
+        },
+        "5": "#5a5a5a"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 12,
+            "scaleY": 3,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 69,
+            "innerOnly": true,
+            "scale": 0.55,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 1.2,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.2,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.2,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 1.2,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 1004,
+            "density": 0.012,
+            "scale": [
+                1.0,
+                3.0
+            ],
+            "zLayer": -3,
+            "color": 3,
+            "clearance": 1
+        },
+        {
+            "id": 1764,
+            "density": 0.015,
+            "scale": [
+                0.3,
+                0.8
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 54,
+            "density": 0.004,
+            "scale": [
+                0.25,
+                0.45
+            ],
+            "randomRotation": true,
+            "zLayer": -5,
+            "color": 3,
+            "clearance": 1
+        }
+    ]
+}

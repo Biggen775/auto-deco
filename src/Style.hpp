@@ -31,6 +31,7 @@ struct EdgeLayer {
     int rotationOffset = 0;
     float offsetX = 0.f, offsetY = 0.f;
     float scale = 1.f;
+    float scaleX = 0.f, scaleY = 0.f; // 0 = use `scale` (non-uniform scale for thick lines)
     int zLayer = 3;   // B1
     int zOrder = 0;
     int color = 2;
@@ -50,6 +51,8 @@ struct Overlay {
 struct HazardOverlay {
     int id = 0;
     float scale = 1.f;
+    float offsetX = 0.f, offsetY = 0.f; // rotated with `rotation`, scaled with `scale`
+    int rotation = 0;
     int zLayer = -1, zOrder = 0;
     int color = 4;
     bool matchRotation = false;

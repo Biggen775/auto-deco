@@ -116,6 +116,8 @@ Result<Style> Style::fromJson(matjson::Value const& v, std::string const& id) {
             e.offsetX = getFloat(ev, "offsetX", 0.f);
             e.offsetY = getFloat(ev, "offsetY", 0.f);
             e.scale = getFloat(ev, "scale", 1.f);
+            e.scaleX = getFloat(ev, "scaleX", 0.f);
+            e.scaleY = getFloat(ev, "scaleY", 0.f);
             e.zLayer = getInt(ev, "zLayer", 3);
             e.zOrder = getInt(ev, "zOrder", 0);
             e.color = getInt(ev, "color", 2);
@@ -147,6 +149,9 @@ Result<Style> Style::fromJson(matjson::Value const& v, std::string const& id) {
             h.id = getInt(hv, "id", 0);
             if (h.id <= 0) continue;
             h.scale = getFloat(hv, "scale", 1.f);
+            h.offsetX = getFloat(hv, "offsetX", 0.f);
+            h.offsetY = getFloat(hv, "offsetY", 0.f);
+            h.rotation = getInt(hv, "rotation", 0);
             h.zLayer = getInt(hv, "zLayer", -1);
             h.zOrder = getInt(hv, "zOrder", 0);
             h.color = getInt(hv, "color", 4);
@@ -241,6 +246,8 @@ matjson::Value Style::toJson() const {
         o.set("rotation", e.rotationOffset);
         o.set("offsetX", (double)e.offsetX); o.set("offsetY", (double)e.offsetY);
         o.set("scale", (double)e.scale);
+        if (e.scaleX > 0.f) o.set("scaleX", (double)e.scaleX);
+        if (e.scaleY > 0.f) o.set("scaleY", (double)e.scaleY);
         o.set("zLayer", e.zLayer); o.set("zOrder", e.zOrder);
         o.set("color", e.color); o.set("detailColor", e.detailColor);
         el.push(o);
@@ -262,6 +269,8 @@ matjson::Value Style::toJson() const {
         auto o = matjson::Value::object();
         o.set("id", h.id); o.set("scale", (double)h.scale);
         o.set("zLayer", h.zLayer); o.set("zOrder", h.zOrder);
+        o.set("offsetX", (double)h.offsetX); o.set("offsetY", (double)h.offsetY);
+        o.set("rotation", h.rotation);
         o.set("color", h.color); o.set("matchRotation", h.matchRotation);
         hl.push(o);
     }
