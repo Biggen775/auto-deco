@@ -1,0 +1,34 @@
+{
+    "geode": "5.11.2",
+    "gd": {
+        "win": "2.2081",
+        "android": "2.2081"
+    },
+    "version": "v0.1.0",
+    "id": "brittj.auto-deco",
+    "name": "Auto Deco",
+    "developer": "brittj",
+    "description": "Decorate a layout in seconds: pick a style, press Apply.",
+    "tags": ["editor", "utility"],
+    "resources": {
+        "files": [
+            "resources/styles/*.json"
+        ]
+    },
+    "settings": {
+        "scatter-multiplier": {
+            "name": "Scatter density",
+            "description": "Multiplies the background scatter density of every style. 0 disables scatter.",
+            "type": "float",
+            "default": 1.0,
+            "min": 0.0,
+            "max": 4.0,
+            "control": { "slider": true, "slider-step": 0.1 }
+        },
+        "show-button": {
+            "name": "Show editor button",
+            "type": "bool",
+            "default": true
+        }
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "name": "Classic Dark",
+    "description": "Black background, white outlined grid blocks, red hazards. Readable, high contrast.",
+    "palette": {
+        "bg": "#080808",
+        "ground": "#121212",
+        "line": "#ffffff",
+        "1": "#e8e8e8",
+        "2": "#ff3030",
+        "3": "#3a3a3a"
+    },
+    "blocks": {
+        "inner": 5,
+        "edge": 2,
+        "corner": 3,
+        "innerCorner": 4,
+        "cap": 6,
+        "pillar": 7,
+        "single": 83,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "scatter": [
+        { "id": 150, "density": 0.01, "scale": [0.4, 0.9], "randomRotation": true, "zLayer": -3, "color": 3, "clearance": 1 },
+        { "id": 125, "density": 0.015, "scale": [0.3, 0.5], "zLayer": -5, "color": 3 }
+    ]
+}

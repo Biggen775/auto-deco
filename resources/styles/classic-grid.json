@@ -1,0 +1,34 @@
+{
+    "name": "Classic Grid",
+    "description": "1.0-era grid blocks with bright outlines. Blue background, white blocks, red hazards.",
+    "palette": {
+        "bg": "#1e3f8a",
+        "ground": "#163070",
+        "line": "#ffffff",
+        "1": "#ffffff",
+        "2": "#ff4040",
+        "3": "#6b8ed6"
+    },
+    "blocks": {
+        "inner": 5,
+        "edge": 2,
+        "corner": 3,
+        "innerCorner": 4,
+        "cap": 6,
+        "pillar": 7,
+        "single": 83,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "scatter": [
+        { "id": 143, "density": 0.012, "scale": [0.4, 0.8], "zLayer": -3, "color": 3, "clearance": 1 },
+        { "id": 134, "density": 0.006, "scale": [0.5, 1.0], "randomRotation": true, "zLayer": -3, "color": 3, "clearance": 1 },
+        { "id": 127, "density": 0.02, "scale": [0.3, 0.6], "zLayer": -5, "color": 3 }
+    ]
+}
