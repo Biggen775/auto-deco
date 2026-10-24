@@ -1,0 +1,167 @@
+{
+    "name": "Gold",
+    "description": "Black and gold: warm golden outlines, amber glow, diamonds in the background.",
+    "palette": {
+        "bg": "#0d0900",
+        "ground": "#2a1a00",
+        "ground2": "#0d0900",
+        "line": "#ffcc33",
+        "1": "#000000",
+        "2": "#ffcc33",
+        "3": "#8a6a20",
+        "4": {
+            "color": "#ff9900",
+            "blending": true,
+            "opacity": 0.35
+        },
+        "5": "#3a2a08"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 13,
+            "scaleY": 2,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 0.55,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 53,
+            "density": 0.006,
+            "scale": [
+                0.25,
+                0.5
+            ],
+            "zLayer": -5,
+            "color": 3,
+            "randomRotation": true
+        },
+        {
+            "id": 1764,
+            "density": 0.02,
+            "scale": [
+                0.3,
+                0.7
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1521,
+            "density": 0.004,
+            "scale": [
+                1.0,
+                2.0
+            ],
+            "zLayer": -5,
+            "color": 4,
+            "clearance": 2
+        }
+    ],
+    "effects": {
+        "pulse": "soft",
+        "shader": "none",
+        "spin": false,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
+}

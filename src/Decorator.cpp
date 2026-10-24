@@ -6,6 +6,7 @@
 #include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/binding/GJSpriteColor.hpp>
 #include <Geode/binding/EditorUI.hpp>
+#include <algorithm>
 #include <cctype>
 #include <functional>
 #include <cmath>
@@ -132,6 +133,118 @@ static void placeEdgeLayer(EdgeLayer const& e, CCPoint c, unsigned open, unsigne
     if ((diag & BL) && !(open & B) && !(open & L)) put(e.innerCorner, 270);
 }
 
+// ---------------------------------------------------------------- Customize
+
+Customize Customize::load() {
+    auto mod = Mod::get();
+    Customize c;
+    c.outline = mod->getSavedValue<int>("c-outline", 2);
+    c.glow = (float)mod->getSavedValue<double>("c-glow", 1.0);
+    c.detail = mod->getSavedValue<bool>("c-detail", true);
+    c.hazardGlow = mod->getSavedValue<bool>("c-hazard-glow", true);
+    c.useAccent = mod->getSavedValue<bool>("c-use-accent", false);
+    auto hex = mod->getSavedValue<std::string>("c-accent", "#ffffff");
+    if (auto col = parseColor(matjson::Value(hex))) c.accent = *col;
+    c.pulse = mod->getSavedValue<int>("c-pulse", -1);
+    c.shader = mod->getSavedValue<int>("c-shader", -1);
+    c.spin = mod->getSavedValue<int>("c-spin", -1);
+    return c;
+}
+
+void Customize::save() const {
+    auto mod = Mod::get();
+    mod->setSavedValue("c-outline", outline);
+    mod->setSavedValue("c-glow", (double)glow);
+    mod->setSavedValue("c-detail", detail);
+    mod->setSavedValue("c-hazard-glow", hazardGlow);
+    mod->setSavedValue("c-use-accent", useAccent);
+    mod->setSavedValue("c-accent", colorToHex(accent));
+    mod->setSavedValue("c-pulse", pulse);
+    mod->setSavedValue("c-shader", shader);
+    mod->setSavedValue("c-spin", spin);
+}
+
+const char* Customize::pulseName(int v) {
+    switch (v) { case 0: return "Off"; case 1: return "Soft"; case 2: return "Strong"; default: return "Style"; }
+}
+const char* Customize::shaderName(int v) {
+    switch (v) { case 0: return "None"; case 1: return "Chromatic"; case 2: return "Vignette"; case 3: return "Bulge"; case 4: return "Pixelate"; default: return "Style"; }
+}
+const char* Customize::outlineName(int v) {
+    switch (v) { case 0: return "Off"; case 1: return "Thin"; case 3: return "Thick"; default: return "Style"; }
+}
+
+static bool nameHas(std::string const& name, const char* word) {
+    return name.find(word) != std::string::npos;
+}
+
+// Applies the Customize panel to a copy of the style.
+static Style effectiveStyle(Style const& in, Customize const& c) {
+    Style s = in;
+
+    // Outline thickness. Outline layers are 30x2 lines centred (15 - scaleY) from the cell centre.
+    std::vector<EdgeLayer> layers;
+    for (auto e : s.edgeLayers) {
+        if (nameHas(e.name, "outline")) {
+            if (c.outline == 0) continue;
+            float sy = e.scaleY > 0.f ? e.scaleY : e.scale;
+            if (c.outline == 1) sy = 1.f;
+            else if (c.outline == 3) sy = std::max(sy * 1.7f, 3.f);
+            if (c.outline != 2) {
+                e.scaleY = sy;
+                if (e.scaleX <= 0.f) e.scaleX = e.scale;
+                e.offsetY = 15.f - sy;
+            }
+        }
+        if (nameHas(e.name, "glow") && c.glow <= 0.01f) continue;
+        layers.push_back(e);
+    }
+    s.edgeLayers = layers;
+
+    if (c.glow <= 0.01f || !c.hazardGlow) s.hazardOverlays.clear();
+    if (!c.detail) s.overlays.clear();
+
+    for (auto& [key, ch] : s.palette) {
+        if (ch.blending) ch.opacity = std::clamp(ch.opacity * c.glow, 0.f, 1.f);
+    }
+    if (c.useAccent) {
+        for (int id : s.effects.accentChannels) {
+            auto it = s.palette.find(std::to_string(id));
+            if (it != s.palette.end()) it->second.color = c.accent;
+        }
+    }
+    return s;
+}
+
+static int pulseLevel(Style const& s, Customize const& c) {
+    if (c.pulse >= 0) return c.pulse;
+    if (s.effects.pulse == "soft") return 1;
+    if (s.effects.pulse == "strong") return 2;
+    return 0;
+}
+static int shaderKind(Style const& s, Customize const& c) {
+    if (c.shader >= 0) return c.shader;
+    auto& n = s.effects.shader;
+    if (n == "chromatic") return 1;
+    if (n == "vignette") return 2;
+    if (n == "bulge") return 3;
+    if (n == "pixelate") return 4;
+    return 0;
+}
+static bool spinOn(Style const& s, Customize const& c) {
+    return c.spin >= 0 ? c.spin == 1 : s.effects.spin;
+}
+
+static ObjString makeTrigger(int id, CCPoint pos, std::string const& group) {
+    ObjString o;
+    o.set("1", std::to_string(id));
+    o.set("2", fmt::format("{:.2f}", pos.x));
+    o.set("3", fmt::format("{:.2f}", pos.y));
+    o.set("36", "1");
+    o.set("57", group);
+    return o;
+}
+
 // ---------------------------------------------------------------- Decorator
 
 bool Decorator::isGridBlock(GameObject* obj) const {
@@ -193,7 +306,8 @@ void Decorator::applyPalette(Style const& style) {
     m_layer->updateLevelColors();
 }
 
-Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opts) {
+Result<ApplyReport> Decorator::apply(Style const& styleIn, ApplyOptions const& opts) {
+    Style style = effectiveStyle(styleIn, opts.custom);
     if (!m_layer || !m_layer->m_objects) return Err("no editor layer");
     if (!style.hasBlocks()) return Err("style has no block pieces");
 
@@ -212,7 +326,7 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
 
     // 1. Occupancy from every solid in the level (not just the selection), so edge
     //    classification is right at the border of a selection.
-    CellSet occ;
+    CellSet occ, avoid;
     std::vector<GameObject*> blocks, hazards;
     float minX = 1e9f, maxX = -1e9f, minY = 1e9f, maxY = -1e9f;
     for (auto obj : CCArrayExt<GameObject*>(m_layer->m_objects)) {
@@ -221,6 +335,10 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
         minX = std::min(minX, p.x); maxX = std::max(maxX, p.x);
         minY = std::min(minY, p.y); maxY = std::max(maxY, p.y);
         if (solidType(obj)) markRect(occ, m_layer->getObjectRect(obj, false, false));
+        else if (obj->m_objectType != GameObjectType::Decoration) {
+            // Orbs, pads, portals, hazards, triggers: scatter must never sit on top of these.
+            markRect(avoid, m_layer->getObjectRect(obj, false, false));
+        }
         bool eligible = !opts.selectionOnly || obj->m_isSelected;
         if (!eligible) continue;
         if (isGridBlock(obj)) blocks.push_back(obj);
@@ -328,14 +446,26 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
             for (int dx = -radius; dx <= radius; dx++)
                 for (int dy = -radius; dy <= radius; dy++)
                     if (occ.count({c.x + dx, c.y + dy})) return false;
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
+                    if (avoid.count({c.x + dx, c.y + dy})) return false;
             return true;
         };
+        // Optional spinning deco (1.9 rotating lines / balls, anchored at their base).
+        std::vector<ScatterRule> rules = style.scatter;
+        if (spinOn(style, opts.custom)) {
+            for (int id : {1521, 1523, 376, 378}) {
+                ScatterRule r; r.id = id; r.density = 0.004f; r.scaleMin = 0.6f; r.scaleMax = 1.1f;
+                r.randomRotation = true; r.zLayer = -5; r.color = style.effects.spinColor; r.minClearance = 2;
+                rules.push_back(r);
+            }
+        }
         CellSet used;
         for (int x = cx0; x <= cx1; x++) {
             for (int y = cy0; y <= cy1; y++) {
                 Cell c{x, y};
-                if (occ.count(c)) continue;
-                for (auto& rule : style.scatter) {
+                if (occ.count(c) || avoid.count(c)) continue;
+                for (auto& rule : rules) {
                     if (unit(rng) >= rule.density * mult) continue;
                     if (used.count(c) || !clear(c, rule.minClearance)) break;
                     used.insert(c);
@@ -361,6 +491,63 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
         }
     }
 
+    // 3b. Effects: pulse triggers along the level and a shader trigger at the start.
+    if (opts.recolor && maxX > minX) {
+        float trigY = std::max(maxY, minY) + 150.f;
+        float startX = std::max(minX, 15.f);
+        int pulse = pulseLevel(style, opts.custom);
+        if (pulse > 0) {
+            float spacing = pulse == 2 ? 120.f : 240.f;
+            float fadeOut = pulse == 2 ? 0.30f : 0.45f;
+            for (float x = startX; x <= maxX; x += spacing) {
+                for (int chId : style.effects.pulseChannels) {
+                    auto it = style.palette.find(std::to_string(chId));
+                    if (it == style.palette.end()) continue;
+                    auto c = it->second.color;
+                    float k = pulse == 2 ? 0.85f : 0.6f;
+                    auto up = [&](uint8_t v) { return (int)std::lround(v + (255 - v) * k); };
+                    auto o = makeTrigger(1006, {x, trigY}, groupStr);
+                    o.set("51", std::to_string(chId));
+                    o.set("52", "0");
+                    o.set("48", "0");
+                    o.set("7", std::to_string(up(c.r)));
+                    o.set("8", std::to_string(up(c.g)));
+                    o.set("9", std::to_string(up(c.b)));
+                    o.set("45", "0.06");
+                    o.set("46", "0.04");
+                    o.set("47", fmt::format("{:.2f}", fadeOut));
+                    emit(o);
+                    rep.triggersAdded++;
+                }
+            }
+        }
+        int shader = shaderKind(style, opts.custom);
+        if (shader > 0) {
+            CCPoint sp{startX, trigY};
+            ObjString o;
+            switch (shader) {
+                case 1: // chromatic aberration
+                    o = makeTrigger(2910, sp, groupStr);
+                    o.set("10", "0.5"); o.set("180", "3"); o.set("189", "1"); o.set("188", "1"); o.set("190", "1");
+                    break;
+                case 2: // lens circle vignette around the player
+                    o = makeTrigger(2913, sp, groupStr);
+                    o.set("10", "1"); o.set("179", "220"); o.set("181", "140"); o.set("176", "0.7"); o.set("138", "1");
+                    break;
+                case 3: // bulge following the player
+                    o = makeTrigger(2916, sp, groupStr);
+                    o.set("10", "1"); o.set("176", "0.12"); o.set("180", "260"); o.set("188", "1"); o.set("138", "1");
+                    break;
+                default: // pixelate
+                    o = makeTrigger(2912, sp, groupStr);
+                    o.set("10", "0.5"); o.set("180", "3"); o.set("189", "3"); o.set("188", "1"); o.set("190", "1"); o.set("194", "1"); o.set("515", "1");
+                    break;
+            }
+            emit(o);
+            rep.triggersAdded++;
+        }
+    }
+
     // 4. Commit: remove originals, add the new objects, recolor.
     for (auto obj : blocks) m_layer->removeObject(obj, true);
     for (auto obj : hazards) {
@@ -380,8 +567,8 @@ Result<ApplyReport> Decorator::apply(Style const& style, ApplyOptions const& opt
     auto w = file::writeString(backupPath(), json.dump(0));
     if (!w) log::warn("Auto Deco: could not write backup: {}", w.unwrapErr());
 
-    log::info("Auto Deco: applied '{}' -> {} blocks, {} hazards, {} scatter (group {})",
-              style.name, rep.blocksReplaced, rep.hazardsTouched, rep.scatterAdded, rep.group);
+    log::info("Auto Deco: applied '{}' -> {} blocks, {} hazards, {} scatter, {} triggers (group {})",
+              style.name, rep.blocksReplaced, rep.hazardsTouched, rep.scatterAdded, rep.triggersAdded, rep.group);
     return Ok(rep);
 }
 

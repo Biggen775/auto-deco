@@ -1,4 +1,5 @@
 #include "StylePopup.hpp"
+#include "OptionsPopup.hpp"
 #include <Geode/ui/Layout.hpp>
 #include <Geode/ui/Notification.hpp>
 #include <Geode/utils/file.hpp>
@@ -71,6 +72,14 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     m_info->setWidth(W - rx - 10.f);
     m_mainLayer->addChild(m_info);
 
+    m_customInfo = CCLabelBMFont::create("", "chatFont.fnt");
+    m_customInfo->setScale(.5f);
+    m_customInfo->setAnchorPoint({0, 1});
+    m_customInfo->setPosition({rx - 12.f, ry - 30.f});
+    m_customInfo->setWidth(W - rx - 10.f);
+    m_customInfo->setColor({170, 220, 255});
+    m_mainLayer->addChild(m_customInfo);
+
     // ----- buttons
     auto btnMenu = CCMenu::create();
     btnMenu->setPosition({0, 0});
@@ -81,10 +90,15 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     applyBtn->setPosition({W - 68.f, 34.f});
     btnMenu->addChild(applyBtn);
 
-    auto undoSpr = ButtonSprite::create("Undo deco", "bigFont.fnt", "GJ_button_06.png", .6f);
+    auto undoSpr = ButtonSprite::create("Undo", "bigFont.fnt", "GJ_button_06.png", .6f);
     auto undoBtn = CCMenuItemSpriteExtra::create(undoSpr, this, menu_selector(StylePopup::onUndo));
-    undoBtn->setPosition({W - 158.f, 34.f});
+    undoBtn->setPosition({W - 138.f, 34.f});
     btnMenu->addChild(undoBtn);
+
+    auto custSpr = ButtonSprite::create("Customize", "bigFont.fnt", "GJ_button_04.png", .45f);
+    auto custBtn = CCMenuItemSpriteExtra::create(custSpr, this, menu_selector(StylePopup::onCustomize));
+    custBtn->setPosition({W - 142.f, H - 20.f});
+    btnMenu->addChild(custBtn);
 
     auto saveSpr = ButtonSprite::create("Save selection as style", "bigFont.fnt", "GJ_button_04.png", .45f);
     auto saveBtn = CCMenuItemSpriteExtra::create(saveSpr, this, menu_selector(StylePopup::onSave));
@@ -118,6 +132,7 @@ bool StylePopup::init(LevelEditorLayer* layer) {
     auto& styles = StyleLibrary::get().styles();
     if (!styles.empty()) m_selectedId = styles.front().id;
     rebuildList();
+    refreshCustomInfo();
     Decorator deco(m_layer);
     if (deco.hasBackup()) setStatus("This level has Auto Deco applied. Apply again restyles from the original layout.");
     return true;
@@ -179,11 +194,12 @@ void StylePopup::onApply(CCObject*) {
     opts.scatter = m_scatter->isToggled();
     opts.recolor = m_recolor->isToggled();
     opts.hazards = m_hazards->isToggled();
+    opts.custom = Customize::load();
     Decorator deco(m_layer);
     auto r = deco.apply(*style, opts);
     if (!r) { setStatus(r.unwrapErr(), true); return; }
     auto rep = r.unwrap();
-    Notification::create(fmt::format("{}: {} blocks, {} hazards, {} deco", style->name, rep.blocksReplaced, rep.hazardsTouched, rep.scatterAdded), NotificationIcon::Success)->show();
+    Notification::create(fmt::format("{}: {} blocks, {} hazards, {} deco, {} fx", style->name, rep.blocksReplaced, rep.hazardsTouched, rep.scatterAdded, rep.triggersAdded), NotificationIcon::Success)->show();
     this->onClose(nullptr);
 }
 
@@ -222,6 +238,23 @@ void StylePopup::onReload(CCObject*) {
 
 void StylePopup::onOpenFolder(CCObject*) {
     file::openFolder(StyleLibrary::get().userDir());
+}
+
+void StylePopup::onCustomize(CCObject*) {
+    OptionsPopup::create([this] { this->refreshCustomInfo(); })->show();
+}
+
+void StylePopup::refreshCustomInfo() {
+    auto c = Customize::load();
+    float sc = (float)Mod::get()->getSettingValue<double>("scatter-multiplier");
+    std::string txt = fmt::format("Outline {} | Glow {}% | Deco {}%", Customize::outlineName(c.outline),
+        (int)std::lround(c.glow * 100), (int)std::lround(sc * 100));
+    txt += fmt::format("\nPulse {} | Shader {} | Spin {}", Customize::pulseName(c.pulse), Customize::shaderName(c.shader),
+        c.spin < 0 ? "Style" : (c.spin ? "On" : "Off"));
+    if (c.useAccent) txt += fmt::format(" | Accent {}", colorToHex(c.accent));
+    if (!c.detail) txt += " | no detail";
+    if (!c.hazardGlow) txt += " | no hazard glow";
+    m_customInfo->setString(txt.c_str());
 }
 
 void StylePopup::onDumpIds(CCObject*) {

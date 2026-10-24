@@ -1,0 +1,106 @@
+{
+    "name": "Retro Green",
+    "description": "Monochrome green pixel look: thin outlines, pixel-square interiors, pixelate shader.",
+    "palette": {
+        "bg": "#001a00",
+        "ground": "#003300",
+        "ground2": "#001a00",
+        "line": "#39ff14",
+        "1": "#003b00",
+        "2": "#39ff14",
+        "3": "#1f8f1f",
+        "4": {
+            "color": "#39ff14",
+            "blending": true,
+            "opacity": 0.2
+        },
+        "5": "#0f6f0f"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 14,
+            "scaleY": 1,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 1.0,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [],
+    "scatter": [
+        {
+            "id": 917,
+            "density": 0.03,
+            "scale": [
+                0.8,
+                1.8
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 916,
+            "density": 0.006,
+            "scale": [
+                0.6,
+                1.2
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1766,
+            "density": 0.005,
+            "scale": [
+                1.0,
+                1.6
+            ],
+            "zLayer": -3,
+            "color": 3,
+            "randomRotation": true
+        }
+    ],
+    "effects": {
+        "pulse": "off",
+        "shader": "pixelate",
+        "spin": false,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
+}

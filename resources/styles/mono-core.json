@@ -9,24 +9,99 @@
         "1": "#262626",
         "2": "#ffffff",
         "3": "#3c3c3c",
-        "4": { "color": "#ffffff", "blending": true, "opacity": 0.22 },
+        "4": {
+            "color": "#ffffff",
+            "blending": true,
+            "opacity": 0.22
+        },
         "5": "#454545"
     },
     "blocks": {
-        "inner": 211, "edge": 211, "corner": 211, "innerCorner": 211, "cap": 211, "pillar": 211, "single": 211,
-        "baseColor": 1, "detailColor": 1
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
     },
     "edgeLayers": [
-        { "name": "outline", "edge": 468, "offsetX": 0, "offsetY": 14, "zLayer": 5, "zOrder": 4, "color": 2 }
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 14,
+            "scaleY": 1,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
     ],
     "overlays": [
-        { "id": 69, "innerOnly": true, "scale": 1.0, "zLayer": 5, "zOrder": 2, "color": 5 }
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 1.0,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
     ],
-    "hazards": { "recolor": true, "baseColor": 2, "detailColor": 2, "remap": {} },
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
     "hazardOverlays": [],
     "scatter": [
-        { "id": 917,  "density": 0.02,  "scale": [0.6, 1.6], "zLayer": -3, "color": 3 },
-        { "id": 1766, "density": 0.008, "scale": [0.8, 1.6], "randomRotation": true, "zLayer": -3, "color": 3 },
-        { "id": 1521, "density": 0.006, "scale": [1.0, 2.2], "zLayer": -5, "color": 4, "clearance": 2 }
-    ]
+        {
+            "id": 917,
+            "density": 0.02,
+            "scale": [
+                0.6,
+                1.6
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1766,
+            "density": 0.008,
+            "scale": [
+                0.8,
+                1.6
+            ],
+            "zLayer": -3,
+            "color": 3,
+            "randomRotation": true
+        },
+        {
+            "id": 1521,
+            "density": 0.006,
+            "scale": [
+                1.0,
+                2.2
+            ],
+            "zLayer": -5,
+            "color": 4,
+            "clearance": 2
+        }
+    ],
+    "effects": {
+        "pulse": "off",
+        "shader": "vignette",
+        "spin": true,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
 }

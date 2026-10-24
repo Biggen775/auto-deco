@@ -65,6 +65,16 @@ struct Piece {
     int rotationOffset = 0;
 };
 
+// Style-level defaults for the trigger-based effects. The Customize panel can override them.
+struct Effects {
+    std::string pulse = "off";    // off | soft | strong
+    std::string shader = "none";  // none | chromatic | vignette | bulge | pixelate
+    bool spin = false;            // add slowly rotating 1.9 deco (rotating lines / balls)
+    std::vector<int> pulseChannels = {2, 4};   // colour channels the pulse triggers hit
+    std::vector<int> accentChannels = {2, 4};  // channels replaced by the user's accent colour
+    int spinColor = 3;
+};
+
 struct ScatterRule {
     int id = 0;
     float density = 0.01f;     // probability per empty grid cell
@@ -101,6 +111,7 @@ struct Style {
     bool recolorHazards = true;
 
     std::vector<ScatterRule> scatter;
+    Effects effects;
 
     bool hasBlocks() const { return blocks[(size_t)Role::Inner] && blocks[(size_t)Role::Edge]; }
 

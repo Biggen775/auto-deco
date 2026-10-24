@@ -33,6 +33,9 @@ protected:
     void onReload(cocos2d::CCObject*);
     void onOpenFolder(cocos2d::CCObject*);
     void onDumpIds(cocos2d::CCObject*);
+    void onCustomize(cocos2d::CCObject*);
+    cocos2d::CCLabelBMFont* m_customInfo = nullptr;
+    void refreshCustomInfo();
     void onToggle(cocos2d::CCObject*) {}
 };
 

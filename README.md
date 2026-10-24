@@ -62,6 +62,23 @@ In the editor, press the **Deco** button (top-left, next to undo/redo).
   Four `1012` quarter-gradients at rotations 0/90/180/270 with offset (15,15) make a radial glow disc.
 - Edge layers accept `scaleX` / `scaleY` for non-uniform scale (e.g. `468` with `scaleY: 3` is a thick outline).
 
+### Customize panel
+
+**Deco → Customize** layers your own tweaks on top of any style and remembers them:
+outline (off / thin / style / thick), glow strength, background deco density, inner detail, hazard glow,
+an accent colour (replaces the style's outline + glow colours), and the effects below.
+
+### Effects (2.2 triggers, all removable with Undo)
+
+- **Pulse**: pulse triggers along the whole level that flash the outline/glow channels on a steady beat
+  (soft ≈ every 2 beats, strong ≈ every beat at normal speed). Not synced to the song, but rhythmic.
+- **Shader**: one 2.2 shader trigger at the start: chromatic aberration, lens-circle vignette around the player,
+  a bulge that follows the player, or pixelate (retro).
+- **Spinning deco**: 1.9 rotating lines/balls sprinkled in the background.
+
+Styles set defaults in `"effects": { "pulse": "soft", "shader": "chromatic", "spin": true, "pulseChannels": [2,4], "accentChannels": [2,4] }`;
+the Customize panel can override each one ("Style" = use the style's default).
+
 ### Bundled styles
 
 | Style | Look |
@@ -69,6 +86,12 @@ In the editor, press the **Deco** button (top-left, next to undo/redo).
 | White Glow | black silhouettes, thick white outline, white glow, nested-square interiors |
 | Monochrome Core | dark-grey fill, thin white outline, grid interiors, light beams, no glow |
 | Hellfire | black silhouettes, orange outline + heavy glow, embers, lava ground |
+| Blue Tech | navy fill, cyan outline, circuit grid inside, gears in the background |
+| Nine Circles | black + hot pink, strong pulse, chromatic shader |
+| Retro Green | monochrome green pixel look with a pixelate shader |
+| Synthwave | magenta outlines, violet glow, stars and beams |
+| Ice | dark blue fill, frosty thick outline, pale glow, flakes |
+| Gold | black and gold, amber glow, diamonds |
 | Classic Dark / Classic Grid / Ocean | 1.0 grid block families |
 
 Useful object IDs (from the game's own sprite table): `211` solid square, `468` 30x2 line, `69` outline square,

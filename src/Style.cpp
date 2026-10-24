@@ -195,6 +195,21 @@ Result<Style> Style::fromJson(matjson::Value const& v, std::string const& id) {
         }
     }
 
+    if (v.contains("effects") && v["effects"].isObject()) {
+        auto& fx = v["effects"];
+        s.effects.pulse = getStr(fx, "pulse", "off");
+        s.effects.shader = getStr(fx, "shader", "none");
+        s.effects.spin = getBool(fx, "spin", false);
+        s.effects.spinColor = getInt(fx, "spinColor", 3);
+        auto intList = [&](const char* key, std::vector<int>& out) {
+            if (!fx.contains(key) || !fx[key].isArray()) return;
+            out.clear();
+            for (auto& x : fx[key].asArray().unwrap()) if (auto i = x.asInt()) out.push_back((int)i.unwrap());
+        };
+        intList("pulseChannels", s.effects.pulseChannels);
+        intList("accentChannels", s.effects.accentChannels);
+    }
+
     if (v.contains("scatter") && v["scatter"].isArray()) {
         for (auto& sv : v["scatter"].asArray().unwrap()) {
             if (!sv.isObject()) continue;
@@ -310,6 +325,14 @@ matjson::Value Style::toJson() const {
         o.set("clearance", r.minClearance);
         sc.push(o);
     }
+    auto fx = matjson::Value::object();
+    fx.set("pulse", effects.pulse);
+    fx.set("shader", effects.shader);
+    fx.set("spin", effects.spin);
+    fx.set("spinColor", effects.spinColor);
+    auto pc = matjson::Value::array(); for (int c : effects.pulseChannels) pc.push(c); fx.set("pulseChannels", pc);
+    auto ac = matjson::Value::array(); for (int c : effects.accentChannels) ac.push(c); fx.set("accentChannels", ac);
+    v.set("effects", fx);
     v.set("scatter", sc);
     return v;
 }

@@ -1,0 +1,178 @@
+{
+    "name": "Synthwave",
+    "description": "Purple-pink neon: magenta outlines, violet glow, stars and light beams.",
+    "palette": {
+        "bg": "#12002a",
+        "ground": "#ff2fa0",
+        "ground2": "#4a0a5a",
+        "line": "#ff8ad8",
+        "1": "#000000",
+        "2": "#ff4fd8",
+        "3": "#8f6fff",
+        "4": {
+            "color": "#8a2bff",
+            "blending": true,
+            "opacity": 0.5
+        },
+        "5": "#3a1a5a"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 12,
+            "scaleY": 3,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 0.55,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 54,
+            "density": 0.01,
+            "scale": [
+                0.2,
+                0.5
+            ],
+            "zLayer": -5,
+            "color": 3,
+            "randomRotation": true
+        },
+        {
+            "id": 1764,
+            "density": 0.02,
+            "scale": [
+                0.3,
+                0.7
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 1521,
+            "density": 0.006,
+            "scale": [
+                1.2,
+                2.4
+            ],
+            "zLayer": -5,
+            "color": 4,
+            "clearance": 2
+        },
+        {
+            "id": 1004,
+            "density": 0.008,
+            "scale": [
+                1,
+                2.5
+            ],
+            "zLayer": -3,
+            "color": 3,
+            "clearance": 1
+        }
+    ],
+    "effects": {
+        "pulse": "soft",
+        "shader": "chromatic",
+        "spin": true,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
+}

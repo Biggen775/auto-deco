@@ -1,0 +1,166 @@
+{
+    "name": "Ice",
+    "description": "Cold blue-white: dark blue fill, frosty thick outline, pale glow, drifting flakes.",
+    "palette": {
+        "bg": "#0a1a2e",
+        "ground": "#0c2a48",
+        "ground2": "#0a1a2e",
+        "line": "#dff6ff",
+        "1": "#0f2740",
+        "2": "#dff6ff",
+        "3": "#9ad8ff",
+        "4": {
+            "color": "#7fd8ff",
+            "blending": true,
+            "opacity": 0.35
+        },
+        "5": "#3a6a8a"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 12,
+            "scaleY": 3,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 0.55,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 1764,
+            "density": 0.025,
+            "scale": [
+                0.3,
+                0.9
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 54,
+            "density": 0.006,
+            "scale": [
+                0.2,
+                0.4
+            ],
+            "zLayer": -5,
+            "color": 3,
+            "randomRotation": true
+        },
+        {
+            "id": 917,
+            "density": 0.008,
+            "scale": [
+                0.5,
+                1.0
+            ],
+            "zLayer": -5,
+            "color": 3
+        }
+    ],
+    "effects": {
+        "pulse": "off",
+        "shader": "vignette",
+        "spin": true,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
+}

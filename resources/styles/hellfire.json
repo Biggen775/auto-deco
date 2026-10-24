@@ -64,7 +64,7 @@
     ],
     "overlays": [
         {
-            "id": 69,
+            "id": 467,
             "innerOnly": true,
             "scale": 0.6,
             "zLayer": 5,
@@ -81,7 +81,7 @@
     "hazardOverlays": [
         {
             "id": 1012,
-            "scale": 1.5,
+            "scale": 1.1,
             "offsetX": 15,
             "offsetY": 15,
             "rotation": 0,
@@ -91,7 +91,7 @@
         },
         {
             "id": 1012,
-            "scale": 1.5,
+            "scale": 1.1,
             "offsetX": 15,
             "offsetY": 15,
             "rotation": 90,
@@ -101,7 +101,7 @@
         },
         {
             "id": 1012,
-            "scale": 1.5,
+            "scale": 1.1,
             "offsetX": 15,
             "offsetY": 15,
             "rotation": 180,
@@ -111,7 +111,7 @@
         },
         {
             "id": 1012,
-            "scale": 1.5,
+            "scale": 1.1,
             "offsetX": 15,
             "offsetY": 15,
             "rotation": 270,
@@ -138,9 +138,9 @@
                 0.6,
                 1.2
             ],
-            "randomRotation": true,
             "zLayer": -3,
-            "color": 3
+            "color": 3,
+            "randomRotation": true
         },
         {
             "id": 1764,
@@ -152,5 +152,19 @@
             "zLayer": -5,
             "color": 4
         }
-    ]
+    ],
+    "effects": {
+        "pulse": "strong",
+        "shader": "bulge",
+        "spin": false,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
 }

@@ -1,0 +1,186 @@
+{
+    "name": "Blue Tech",
+    "description": "Navy tech blocks with cyan outlines and a circuit grid inside. The classic 'auto deco' look.",
+    "palette": {
+        "bg": "#061030",
+        "ground": "#0a1a4a",
+        "ground2": "#061030",
+        "line": "#7fd0ff",
+        "1": "#0d2a6e",
+        "2": "#7fd0ff",
+        "3": "#2a5aa8",
+        "4": {
+            "color": "#3aa0ff",
+            "blending": true,
+            "opacity": 0.3
+        },
+        "5": "#1e4fa0"
+    },
+    "blocks": {
+        "inner": 211,
+        "edge": 211,
+        "corner": 211,
+        "innerCorner": 211,
+        "cap": 211,
+        "pillar": 211,
+        "single": 211,
+        "baseColor": 1,
+        "detailColor": 1
+    },
+    "edgeLayers": [
+        {
+            "name": "glow",
+            "edge": 1011,
+            "offsetX": 0,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "glow-corner",
+            "corner": 1012,
+            "rotation": 270,
+            "offsetX": 30,
+            "offsetY": 30,
+            "zLayer": 1,
+            "zOrder": 1,
+            "color": 4
+        },
+        {
+            "name": "outline",
+            "edge": 468,
+            "offsetX": 0,
+            "offsetY": 13,
+            "scaleY": 2,
+            "zLayer": 5,
+            "zOrder": 4,
+            "color": 2
+        }
+    ],
+    "overlays": [
+        {
+            "id": 467,
+            "innerOnly": true,
+            "scale": 1.0,
+            "zLayer": 5,
+            "zOrder": 2,
+            "color": 5
+        },
+        {
+            "id": 1001,
+            "innerOnly": true,
+            "scale": 0.5,
+            "zLayer": 5,
+            "zOrder": 3,
+            "color": 5
+        }
+    ],
+    "hazards": {
+        "recolor": true,
+        "baseColor": 2,
+        "detailColor": 2,
+        "remap": {}
+    },
+    "hazardOverlays": [
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 0,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 90,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 180,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        },
+        {
+            "id": 1012,
+            "scale": 0.9,
+            "offsetX": 15,
+            "offsetY": 15,
+            "rotation": 270,
+            "zLayer": 1,
+            "zOrder": 0,
+            "color": 4
+        }
+    ],
+    "scatter": [
+        {
+            "id": 917,
+            "density": 0.018,
+            "scale": [
+                0.6,
+                1.4
+            ],
+            "zLayer": -3,
+            "color": 3
+        },
+        {
+            "id": 87,
+            "density": 0.004,
+            "scale": [
+                0.5,
+                1.0
+            ],
+            "zLayer": -5,
+            "color": 3,
+            "randomRotation": true,
+            "clearance": 2
+        },
+        {
+            "id": 1004,
+            "density": 0.01,
+            "scale": [
+                1,
+                2
+            ],
+            "zLayer": -3,
+            "color": 3,
+            "clearance": 1
+        },
+        {
+            "id": 1764,
+            "density": 0.01,
+            "scale": [
+                0.3,
+                0.6
+            ],
+            "zLayer": -3,
+            "color": 4
+        }
+    ],
+    "effects": {
+        "pulse": "soft",
+        "shader": "none",
+        "spin": false,
+        "pulseChannels": [
+            2,
+            4
+        ],
+        "accentChannels": [
+            2,
+            4
+        ],
+        "spinColor": 3
+    }
+}
