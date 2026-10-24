@@ -3,7 +3,6 @@ name: Build
 on:
   push:
     branches: ["main"]
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -48,9 +47,19 @@ jobs:
           name: Auto-Deco
           path: ${{ steps.combine.outputs.build-output }}
 
+      - uses: actions/checkout@v4
+        with:
+          path: src
+
+      - name: Read mod version
+        id: ver
+        run: echo "version=$(jq -r .version src/mod.json)" >> "$GITHUB_OUTPUT"
+
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.ver.outputs.version }}
+          name: Auto Deco ${{ steps.ver.outputs.version }}
           files: ${{ steps.combine.outputs.build-output }}/*.geode
           generate_release_notes: true
