@@ -27,7 +27,7 @@ class $modify(AutoDecoEditorUI, EditorUI) {
         CCPoint pos{win.width / 2 - 150.f, win.height - 22.f};
         if (auto menu = typeinfo_cast<CCMenu*>(this->getChildByID("undo-menu"))) {
             auto box = menu->boundingBox();
-            pos = {box.getMaxX() + 12.f + btn->getContentWidth() / 2, box.getMidY()};
+            pos = CCPoint(box.getMaxX() + 12.f + btn->getContentWidth() / 2, box.getMidY());
         }
         ownMenu->setPosition(pos);
         this->addChild(ownMenu, 10);
